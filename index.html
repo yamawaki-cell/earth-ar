@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
+
+  <title>Earth AR</title>
+</head>
+
+<body>
+
+<a-scene
+  mindar-image="imageTargetSrc: ./targets.mind;"
+  color-space="sRGB"
+  renderer="colorManagement: true, physicallyCorrectLights"
+  vr-mode-ui="enabled: false"
+  device-orientation-permission-ui="enabled: false">
+
+  <a-camera
+    position="0 0 0"
+    look-controls="enabled: false">
+  </a-camera>
+
+
+  <!-- ポスターを認識したときのAR -->
+  <a-entity
+    id="target"
+    mindar-image-target="targetIndex: 0">
+
+
+    <!-- ロケット -->
+    <a-entity id="rocket">
+
+      <!-- 3Dロケットモデル -->
+      <a-entity
+        gltf-model="./rocket-optimized.glb"
+        position="0 0 0"
+        scale="1 1 1">
+      </a-entity>
+
+    </a-entity>
+
+
+  </a-entity>
+
+</a-scene>
+
+
+<script>
+
+const target = document.querySelector('#target');
+const rocket = document.querySelector('#rocket');
+
+
+/*
+  ポスターを認識したらロケット発射
+*/
+target.addEventListener("targetFound", () => {
+
+  console.log("TARGET FOUND!");
+
+  // ロケットをスタート地点に戻す
+  rocket.setAttribute(
+    "position",
+    "0 0 0"
+  );
+
+  // 前回のアニメーションを削除
+  rocket.removeAttribute("animation");
+
+  // 少し待ってから発射
+  setTimeout(() => {
+
+    rocket.setAttribute(
+      "animation",
+      "property: position; " +
+      "from: 0 0 0; " +
+      "to: 0 4 0; " +
+      "dur: 3000; " +
+      "easing: easeInQuad;"
+    );
+
+  }, 100);
+
+});
+
+
+/*
+  ポスターを見失ったら
+  次の認識に備えてロケットを戻す
+*/
+target.addEventListener("targetLost", () => {
+
+  rocket.removeAttribute("animation");
+
+  rocket.setAttribute(
+    "position",
+    "0 0 0"
+  );
+
+});
+
+
+</script>
+
+</body>
+</html>
